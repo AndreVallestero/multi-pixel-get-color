@@ -28,10 +28,10 @@ hDcWnd := DllCall("GetDC", "UInt", winId)
 , DllCall("gdiplus\GdiplusStartup", "UPtr*", pToken, "UPtr", &startInput, "UPtr", 0)
 
 ; Get proc address for max performance
-procBitBlt := DllCall("GetProcAddress", "UPtr", DllCall("GetModuleHandle", "Str", "gdi32"), "AStr", "BitBlt")
-procCreateBitmap := DllCall("GetProcAddress", "UPtr", hModuleGdip, "AStr", "GdipCreateBitmapFromHBITMAP")
-procBitmapLock := DllCall("GetProcAddress", "UPtr", hModuleGdip, "AStr", "GdipBitmapLockBits")
-procBitmapUnlock := DllCall("GetProcAddress", "UPtr", hModuleGdip, "AStr", "GdipBitmapUnlockBits")
+, procBitBlt := DllCall("GetProcAddress", "UPtr", DllCall("GetModuleHandle", "Str", "gdi32"), "AStr", "BitBlt")
+, procCreateBitmap := DllCall("GetProcAddress", "UPtr", hModuleGdip, "AStr", "GdipCreateBitmapFromHBITMAP")
+, procBitmapLock := DllCall("GetProcAddress", "UPtr", hModuleGdip, "AStr", "GdipBitmapLockBits")
+, procBitmapUnlock := DllCall("GetProcAddress", "UPtr", hModuleGdip, "AStr", "GdipBitmapUnlockBits")
 
 loop 1000 {
 	; Get bitmap
