@@ -16,35 +16,35 @@ windowTitle := "A" ; active window = "A", entire screen = ""
 
 ; Boilerplate
 WinGet, winId, ID, %windowTitle%
-hDcWnd := DllCall("GetDC", "UInt", winId)
-, hDcBuffer := DllCall("CreateCompatibleDC", "UPtr", hDcWnd)
-, hBmBuffer := DllCall("CreateCompatibleBitmap", "UPtr", hDcWnd, "Int", scanWidth, "Int", scanHeight)
-, DllCall("SelectObject", "UPtr", hDcBuffer, "UPtr", hBmBuffer)
+hDcWnd := DllCall("GetDC", "UInt", winId, "Ptr")
+, hDcBuffer := DllCall("CreateCompatibleDC", "Ptr", hDcWnd, "Ptr")
+, hBmBuffer := DllCall("CreateCompatibleBitmap", "Ptr", hDcWnd, "Int", scanWidth, "Int", scanHeight, "Ptr")
+, DllCall("SelectObject", "Ptr", hDcBuffer, "Ptr", hBmBuffer)
 
 ; Init gdiplus
 , VarSetCapacity(startInput,  A_PtrSize = 8 ? 24 : 16, 0)
 , startInput := Chr(1)
-, hModuleGdip := DllCall("LoadLibrary", "Str", "gdiplus")
-, DllCall("gdiplus\GdiplusStartup", "UPtr*", pToken, "UPtr", &startInput, "UPtr", 0)
+, hModuleGdip := DllCall("LoadLibrary", "Str", "gdiplus", "Ptr")
+, DllCall("gdiplus\GdiplusStartup", "Ptr*", pToken, "Ptr", &startInput, "Ptr", 0)
 
 ; Get proc address for max performance
-, procBitBlt := DllCall("GetProcAddress", "UPtr", DllCall("GetModuleHandle", "Str", "gdi32"), "AStr", "BitBlt")
-, procCreateBitmap := DllCall("GetProcAddress", "UPtr", hModuleGdip, "AStr", "GdipCreateBitmapFromHBITMAP")
-, procBitmapLock := DllCall("GetProcAddress", "UPtr", hModuleGdip, "AStr", "GdipBitmapLockBits")
-, procBitmapUnlock := DllCall("GetProcAddress", "UPtr", hModuleGdip, "AStr", "GdipBitmapUnlockBits")
-, procDisposeImage := DllCall("GetProcAddress", "UPtr", hModuleGdip, "AStr", "GdipDisposeImage")
+, procBitBlt := DllCall("GetProcAddress", "Ptr", DllCall("GetModuleHandle", "Str", "gdi32", "Ptr"), "AStr", "BitBlt", "Ptr")
+, procCreateBitmap := DllCall("GetProcAddress", "Ptr", hModuleGdip, "AStr", "GdipCreateBitmapFromHBITMAP", "Ptr")
+, procBitmapLock := DllCall("GetProcAddress", "Ptr", hModuleGdip, "AStr", "GdipBitmapLockBits", "Ptr")
+, procBitmapUnlock := DllCall("GetProcAddress", "Ptr", hModuleGdip, "AStr", "GdipBitmapUnlockBits", "Ptr")
+, procDisposeImage := DllCall("GetProcAddress", "Ptr", hModuleGdip, "AStr", "GdipDisposeImage", "Ptr")
 
-loop 1000 {
+loop 10 {
 	; Get bitmap
-	DllCall(procBitBlt, "UPtr", hDcBuffer, "Int", 0, "Int", 0, "Int", scanWidth, "Int", scanHeight, "UPtr", hDcWnd, "Int", scanPosX, "Int", scanPosY, "UInt", 0xCC0020)
-	, DllCall(procCreateBitmap, "UPtr", hBmBuffer, "UPtr", 0, "UPtr*", pBitmap)
+	DllCall(procBitBlt, "Ptr", hDcBuffer, "Int", 0, "Int", 0, "Int", scanWidth, "Int", scanHeight, "Ptr", hDcWnd, "Int", scanPosX, "Int", scanPosY, "UInt", 0xCC0020)
+	, DllCall(procCreateBitmap, "Ptr", hBmBuffer, "Ptr", 0, "Ptr*", pBitmap)
 
 	; Lock bitmap and get byte iteration data
 	, VarSetCapacity(bitmapRect, 16, 0)
 	, NumPut(scanWidth, bitmapRect, 8, "Int")
 	, NumPut(scanHeight, bitmapRect, 12, "Int")
 	, VarSetCapacity(bitmapData, A_PtrSize * 2 + 16, 0)
-	, DllCall(procBitmapLock, "UPtr", pBitmap, "UPtr", &bitmapRect, "UInt", 3, "Int", 0x26200a, "UPtr", &bitmapData)
+	, DllCall(procBitmapLock, "Ptr", pBitmap, "Ptr", &bitmapRect, "UInt", 3, "Int", 0x26200a, "Ptr", &bitmapData)
 	, stride := NumGet(bitmapData, 8, "Int")
 	, scan0 := NumGet(bitmapData, 16)
 
@@ -64,13 +64,13 @@ loop 1000 {
 	;}
 
 	; Unlock and dispose bitmap
-	DllCall(procBitmapUnlock, "UPtr", pBitmap, "UPtr", &bitmapData)
-	, DllCall(procDisposeImage, "UPtr", pBitmap)
+	DllCall(procBitmapUnlock, "Ptr", pBitmap, "Ptr", &bitmapData)
+	, DllCall(procDisposeImage, "Ptr", pBitmap)
 }
 
 ; Clean up
-DllCall("gdiplus\GdiplusShutdown", "UPtr", pToken)
-, DllCall("FreeLibrary", "UPtr", hModuleGdip)
-, DllCall("DeleteObject", "UPtr", hBmBuffer)
-, DllCall("DeleteDC", "UPtr", hDcBuffer)
-, DllCall("DeleteDC", "UPtr", hDcWnd)
+DllCall("gdiplus\GdiplusShutdown", "Ptr", pToken)
+, DllCall("FreeLibrary", "Ptr", hModuleGdip)
+, DllCall("DeleteObject", "Ptr", hBmBuffer)
+, DllCall("DeleteDC", "Ptr", hDcBuffer)
+, DllCall("DeleteDC", "Ptr", hDcWnd)
