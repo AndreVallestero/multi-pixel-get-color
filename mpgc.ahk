@@ -32,6 +32,7 @@ hDcWnd := DllCall("GetDC", "UInt", winId)
 , procCreateBitmap := DllCall("GetProcAddress", "UPtr", hModuleGdip, "AStr", "GdipCreateBitmapFromHBITMAP")
 , procBitmapLock := DllCall("GetProcAddress", "UPtr", hModuleGdip, "AStr", "GdipBitmapLockBits")
 , procBitmapUnlock := DllCall("GetProcAddress", "UPtr", hModuleGdip, "AStr", "GdipBitmapUnlockBits")
+, procDisposeImage := DllCall("GetProcAddress", "UPtr", hModuleGdip, "AStr", "GdipDisposeImage")
 
 loop 1000 {
 	; Get bitmap
@@ -62,8 +63,9 @@ loop 1000 {
 	;		;col := Format("{:p}", NumGet(scan0 + 0, Floor((A_Index - 1) * scanColumnSkip) * 4 + y * stride, "UInt"))
 	;}
 
-	; Unlock bitmap
+	; Unlock and dispose bitmap
 	DllCall(procBitmapUnlock, "UPtr", pBitmap, "UPtr", &bitmapData)
+	, DllCall(procDisposeImage, "UPtr", pBitmap)
 }
 
 ; Clean up
