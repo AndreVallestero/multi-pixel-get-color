@@ -69,8 +69,7 @@ loop 1000 {
 }
 
 ; Clean up
-DllCall("gdiplus\GdipDisposeImage", "UPtr", pBitmap)
-, DllCall("gdiplus\GdiplusShutdown", "UPtr", pToken)
+DllCall("gdiplus\GdiplusShutdown", "UPtr", pToken)
 , DllCall("FreeLibrary", "UPtr", hModuleGdip)
 , DllCall("DeleteObject", "UPtr", hBmBuffer)
 , DllCall("DeleteDC", "UPtr", hDcBuffer)
