@@ -54,14 +54,14 @@ loop %frames% {
 	Loop %scanHeight% {
 		y := A_Index - 1
 		Loop %scanWidth%
-			col := NumGet(scan0 + 0, (A_Index - 1) * 4 + y * stride, "UInt")
+			col := NumGet(scan0, (A_Index - 1) * 4 + y * stride, "UInt")
 	}
 	
 	; Uncomment to use skipping, ~4,110,000px/s
 	;Loop % Floor(scanHeight / scanRowSkip) {
 	;	y := Floor((A_Index - 1) * scanRowSkip)
 	;	Loop % Floor(scanWidth / scanColumnSkip)
-	;		col := NumGet(scan0 + 0, Floor((A_Index - 1) * scanColumnSkip) * 4 + y * stride, "UInt")
+	;		col := NumGet(scan0, Floor((A_Index - 1) * scanColumnSkip) * 4 + y * stride, "UInt")
 	;		;col := Format("{:p}", NumGet(scan0 + 0, Floor((A_Index - 1) * scanColumnSkip) * 4 + y * stride, "UInt"))
 	;}
 
