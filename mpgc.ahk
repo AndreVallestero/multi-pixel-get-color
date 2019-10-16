@@ -22,7 +22,7 @@ hDcWnd := DllCall("GetDC", "UInt", winId)
 , DllCall("SelectObject", "UPtr", hDcBuffer, "UPtr", hBmBuffer)
 
 ; Init gdiplus
-, VarSetCapacity(startInput, 16, 0)
+, VarSetCapacity(startInput,  A_PtrSize = 8 ? 24 : 16, 0)
 , startInput := Chr(1)
 , hModuleGdip := DllCall("LoadLibrary", "Str", "gdiplus")
 , DllCall("gdiplus\GdiplusStartup", "UPtr*", pToken, "UPtr", &startInput, "UPtr", 0)
@@ -43,7 +43,7 @@ loop 1000 {
 	, VarSetCapacity(bitmapRect, 16, 0)
 	, NumPut(scanWidth, bitmapRect, 8, "Int")
 	, NumPut(scanHeight, bitmapRect, 12, "Int")
-	, VarSetCapacity(bitmapData, 24, 0)
+	, VarSetCapacity(bitmapData, A_PtrSize * 2 + 16, 0)
 	, DllCall(procBitmapLock, "UPtr", pBitmap, "UPtr", &bitmapRect, "UInt", 3, "Int", 0x26200a, "UPtr", &bitmapData)
 	, stride := NumGet(bitmapData, 8, "Int")
 	, scan0 := NumGet(bitmapData, 16)
