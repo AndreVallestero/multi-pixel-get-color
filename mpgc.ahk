@@ -34,7 +34,9 @@ hDcWnd := DllCall("GetDC", "UInt", winId, "Ptr")
 , procBitmapUnlock := DllCall("GetProcAddress", "Ptr", hModuleGdip, "AStr", "GdipBitmapUnlockBits", "Ptr")
 , procDisposeImage := DllCall("GetProcAddress", "Ptr", hModuleGdip, "AStr", "GdipDisposeImage", "Ptr")
 
-loop 10 {
+, startTick := A_TickCount
+, frames := 10
+loop %frames% {
 	; Get bitmap
 	DllCall(procBitBlt, "Ptr", hDcBuffer, "Int", 0, "Int", 0, "Int", scanWidth, "Int", scanHeight, "Ptr", hDcWnd, "Int", scanPosX, "Int", scanPosY, "UInt", 0xCC0020)
 	, DllCall(procCreateBitmap, "Ptr", hBmBuffer, "Ptr", 0, "Ptr*", pBitmap)
@@ -48,14 +50,14 @@ loop 10 {
 	, stride := NumGet(bitmapData, 8, "Int")
 	, scan0 := NumGet(bitmapData, 16)
 
-	; Iterate through pixels, ~3,964,000px/s
+	; Iterate through pixels, ~5,100,000px/s
 	Loop %scanHeight% {
 		y := A_Index - 1
 		Loop %scanWidth%
 			col := NumGet(scan0 + 0, (A_Index - 1) * 4 + y * stride, "UInt")
 	}
 	
-	; Uncomment to use skipping, ~3,191,000px/s
+	; Uncomment to use skipping, ~4,110,000px/s
 	;Loop % Floor(scanHeight / scanRowSkip) {
 	;	y := Floor((A_Index - 1) * scanRowSkip)
 	;	Loop % Floor(scanWidth / scanColumnSkip)
@@ -67,6 +69,9 @@ loop 10 {
 	DllCall(procBitmapUnlock, "Ptr", pBitmap, "Ptr", &bitmapData)
 	, DllCall(procDisposeImage, "Ptr", pBitmap)
 }
+elapsed := A_TickCount - startTick
+pixels := scanWidth * scanHeight * frames
+MsgBox % elapsed . "ms for " . pixels . "px`nat " . Round(pixels * 1000 / elapsed)   . "px/s"
 
 ; Clean up
 DllCall("gdiplus\GdiplusShutdown", "Ptr", pToken)
