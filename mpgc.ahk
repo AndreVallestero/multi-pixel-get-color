@@ -20,11 +20,12 @@ mpgcScanPosX := -1
 , mpgcStride = -1
 , mpgcScan0 = -1
 
-; windowTitle (str) title of the capture window, active window = "A", entire screen = ""
-; leftEdge (int) left edge of the scan area
-; topEdge (int) top edge of the scan area
-; width (int) width of the scan area
-; height (int) height of the scan area
+; Initializes the mpgc
+; windowTitle (Str) title of the capture window, active window = "A", entire screen = ""
+; leftEdge (Int) left edge of the scan area
+; topEdge (Int) top edge of the scan area
+; width (Int) width of the scan area
+; height (Int) height of the scan area
 init_mpgc(windowTitle := "", leftEdge := 0, topEdge := 0, width := -1, height := -1) {
 	global mpgcScanPosX, mpgcScanPosY, mpgcScanWidth, mpgcScanHeight
 	global mpgcHDcWnd, mpgcHDcBuffer, mpgcHModuleGdip, mpgcHBmBuffer, mpgcPToken
@@ -60,6 +61,7 @@ init_mpgc(windowTitle := "", leftEdge := 0, topEdge := 0, width := -1, height :=
 	, mpgcProcDisposeImage := DllCall("GetProcAddress", "Ptr", mpgcHModuleGdip, "AStr", "GdipDisposeImage", "Ptr")
 }
 
+; Updates the bitmap buffer with new pixel information
 update_mpgc() {
 	global mpgcScanPosX, mpgcScanPosY, mpgcScanWidth, mpgcScanHeight
 	global mpgcHDcWnd, mpgcHDcBuffer, mpgcHBmBuffer
@@ -86,11 +88,16 @@ update_mpgc() {
 	, mpgcScan0 := NumGet(mpgcBitmapData, 16)
 }
 
+; Gets the color information at a point
+; x (Int) x position of the pixel
+; y (Int) y position of the pixel
+; return (UInt) the combined color of the pixel in base 10 RGB
 mpgc(x, y) {
 	global mpgcStride, mpgcScan0
 	return NumGet(mpgcScan0 + 0, x * 4 + y * mpgcStride, "UInt")
 }
 
+; Unloads and frees memory and objects used by mpgc, recommended only when finished
 end_mpgc() {
 	global mpgcProcBitmapUnlock, mpgcProcDisposeImage
 	global mpgcHDcWnd, mpgcHDcBuffer, mpgcHBmBuffer, mpgcHModuleGdip, mpgcPToken
